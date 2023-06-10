@@ -44,7 +44,7 @@ public class StatsRepository {
     public List<ViewStats> getIntervalStats(ViewStatsRequest vSR) {
         if (vSR.getUris() == null || vSR.getUris().isEmpty()) {
             if (vSR.isUnique()) {
-                String sqlViewStats = "select s.app, s.uri, count(s.ip) as hits " +
+                String sqlViewStats = "select s.app, s.uri, count(distinct s.ip) as hits " +
                         "from stats as s " +
                         "where s.created between ? and ? " +
                         "group by s.app, s.uri " +
@@ -63,16 +63,16 @@ public class StatsRepository {
             String allUris = listToString(vSR.getUris());
 
             if (vSR.isUnique()) {
-                String sqlViewStats = "select s.app, s.uri, count(s.ip) as hits " +
+                String sqlViewStats = "select s.app, s.uri, count(distinct s.ip) as hits " +
                         "from stats as s " +
-                        "where s.created between ? and ? and s.uri in (?) " +
+                        "where s.created between ? and ? and (?) like '%' || s.uri || '%' " +
                         "group by s.app, s.uri " +
                         "order by count(distinct s.ip) desc";
                 return jdbcTemplate.query(sqlViewStats, (rs, rowNum) -> makeViewStats(rs), vSR.getStart(), vSR.getEnd(), allUris);
             } else {
                 String sqlViewStats = "select s.app, s.uri, count(s.ip) as hits " +
                         "from stats as s " +
-                        "where s.created between ? and ? and s.uri in (?) " +
+                        "where s.created between ? and ? and (?) like '%' || s.uri || '%' " +
                         "group by s.app, s.uri " +
                         "order by count(s.ip) desc";
                 return jdbcTemplate.query(sqlViewStats, (rs, rowNum) -> makeViewStats(rs), vSR.getStart(), vSR.getEnd(), allUris);
