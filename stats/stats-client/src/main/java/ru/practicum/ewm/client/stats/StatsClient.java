@@ -110,7 +110,9 @@ public class StatsClient {
         String queryString = String.format("?start=%s&end=%s",
                 start, end);
 
-        queryString += "&uris=" + String.join(",", request.getUris());
+        if (request.getUris() != null && !request.getUris().isEmpty()) {
+            queryString += "&uris=" + String.join(",", request.getUris());
+        }
 
         queryString += String.format("&unique=%b", request.isUnique());
 

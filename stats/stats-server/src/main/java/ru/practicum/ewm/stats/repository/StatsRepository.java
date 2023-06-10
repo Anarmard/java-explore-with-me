@@ -59,20 +59,23 @@ public class StatsRepository {
                 return jdbcTemplate.query(sqlViewStats, (rs, rowNum) -> makeViewStats(rs), vSR.getStart(), vSR.getEnd());
             }
         } else {
+
+            String allUris = listToString(vSR.getUris());
+
             if (vSR.isUnique()) {
                 String sqlViewStats = "select s.app, s.uri, count(s.ip) as hits " +
                         "from stats as s " +
-                        "where s.created between ? and ? and s.uri in(?) " +
+                        "where s.created between ? and ? and s.uri in (?) " +
                         "group by s.app, s.uri " +
                         "order by count(distinct s.ip) desc";
-                return jdbcTemplate.query(sqlViewStats, (rs, rowNum) -> makeViewStats(rs), vSR.getStart(), vSR.getEnd(), vSR.getUris());
+                return jdbcTemplate.query(sqlViewStats, (rs, rowNum) -> makeViewStats(rs), vSR.getStart(), vSR.getEnd(), allUris);
             } else {
                 String sqlViewStats = "select s.app, s.uri, count(s.ip) as hits " +
                         "from stats as s " +
-                        "where s.created between ? and ? and s.uri in(?) " +
+                        "where s.created between ? and ? and s.uri in (?) " +
                         "group by s.app, s.uri " +
                         "order by count(s.ip) desc";
-                return jdbcTemplate.query(sqlViewStats, (rs, rowNum) -> makeViewStats(rs), vSR.getStart(), vSR.getEnd(), vSR.getUris());
+                return jdbcTemplate.query(sqlViewStats, (rs, rowNum) -> makeViewStats(rs), vSR.getStart(), vSR.getEnd(), allUris);
             }
         }
     }
@@ -82,5 +85,19 @@ public class StatsRepository {
         String uri = rs.getString("uri");
         Long hits = rs.getLong("hits");
         return new ViewStats(app, uri, hits);
+    }
+
+    private String listToString(List<String> stringList) {
+        String allUris = "";
+        int i = 0;
+        for (String currentUri : stringList) {
+            if (i < stringList.size() - 1) {
+                allUris = allUris + currentUri + ",";
+            } else {
+                allUris = allUris + currentUri;
+            }
+            i++;
+        }
+        return allUris;
     }
 }

@@ -33,7 +33,7 @@ public class StatsController {
     @GetMapping("/stats")
     public ResponseEntity<List<ViewStats>> getStats(@RequestParam @NonNull String start,
                                                     @RequestParam @NonNull String end,
-                                                    @RequestParam @NonNull List<String> uris,
+                                                    @RequestParam(required = false) List<String> uris,
                                                     @RequestParam(defaultValue = "false") boolean unique) {
         List<ViewStats> results = statsService.calculateViews(start, end, uris, unique);
         return ResponseEntity.ok(results);
