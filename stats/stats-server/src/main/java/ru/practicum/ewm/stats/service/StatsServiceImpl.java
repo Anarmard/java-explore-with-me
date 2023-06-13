@@ -30,12 +30,6 @@ public class StatsServiceImpl implements StatsService {
     public List<ViewStats> calculateViews(String start, String end, List<String> uris, boolean unique) {
         ViewStatsRequest.ViewStatsRequestBuilder builder = ViewStatsRequest.builder()
                 .unique(unique);
-
-        /*
-        if (uris == null || uris.isEmpty()) {
-            throw new IllegalArgumentException("URI list cannot be empty");
-        }
-         */
         builder.uris(uris);
 
         try {
