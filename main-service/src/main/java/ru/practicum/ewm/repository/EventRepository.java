@@ -29,9 +29,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e " +
             "JOIN e.category " +
-            "WHERE ((:categoryIds) is null or e.category.id IN (:categoryIds)) " +
+            "WHERE (:categoryIds is null or e.category.id IN :categoryIds) " +
             "AND e.state = 'PUBLISHED' " +
-            "AND (:paid is null or paid is :paid) " +
+            "AND :paid is null or e.paid in :paid " +
             "AND e.eventDate BETWEEN :rangeStart AND :rangeEnd")
     Page<Event> searchPublishedEvents(@Param("categoryIds") List<Long> categoryIds,
                                       @Param("paid") Boolean paid,

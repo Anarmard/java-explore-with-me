@@ -44,7 +44,7 @@ public class RequestServiceImpl implements RequestService {
             throw new NotFoundException("Event does not exist " + eventId);
         }
         List<Request> requestList = requestRepository.findAllRequestsForEventInitiator(userId, eventId);
-        return requestMapper.toParticipationRequestDtoList(requestList);
+        return requestList.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
 
     // Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя
@@ -94,7 +94,7 @@ public class RequestServiceImpl implements RequestService {
                 confirmedRequests.add(currentRequest);
             }
             if (status == RequestStatusUpdate.REJECTED && currentRequest.getStatus().equals(RequestStatus.PENDING)) {
-                // вcем отказываем когда событие отменилось
+                // отказываем когда событие отменилось
                 currentRequest.setStatus(RequestStatus.REJECTED);
                 updatedRequests.add(currentRequest);
                 rejectedRequests.add(currentRequest);
@@ -106,8 +106,10 @@ public class RequestServiceImpl implements RequestService {
         eventRepository.save(event);
 
         // переводим в ДТО и на выход
-        List<ParticipationRequestDto> confirmedRequestsDto = requestMapper.toParticipationRequestDtoList(confirmedRequests);
-        List<ParticipationRequestDto> rejectedRequestsDto = requestMapper.toParticipationRequestDtoList(rejectedRequests);
+        List<ParticipationRequestDto> confirmedRequestsDto =
+                confirmedRequests.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
+        List<ParticipationRequestDto> rejectedRequestsDto =
+                rejectedRequests.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
 
         EventRequestStatusUpdateResult updateResult = new EventRequestStatusUpdateResult();
         updateResult.setRejectedRequests(confirmedRequestsDto);
@@ -124,7 +126,7 @@ public class RequestServiceImpl implements RequestService {
             throw new NotFoundException("User does not exist");
         }
         List<Request> requestList = requestRepository.findAllByRequesterIdAndNotInitiator(userId);
-        return requestMapper.toParticipationRequestDtoList(requestList);
+        return requestList.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
 
     // Добавление запроса от текущего пользователя на участие в событии
