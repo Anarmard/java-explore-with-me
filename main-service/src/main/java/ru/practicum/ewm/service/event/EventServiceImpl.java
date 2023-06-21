@@ -8,10 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.client.stats.StatsClient;
 import ru.practicum.ewm.dto.event.*;
-import ru.practicum.ewm.enums.EventState;
-import ru.practicum.ewm.enums.SortValue;
-import ru.practicum.ewm.enums.StateActionAdmin;
-import ru.practicum.ewm.enums.StateActionUser;
+import ru.practicum.ewm.dto.stats.ViewStats;
+import ru.practicum.ewm.dto.stats.ViewStatsRequest;
+import ru.practicum.ewm.enums.*;
 import ru.practicum.ewm.errorHandler.exceptions.NotFoundException;
 import ru.practicum.ewm.errorHandler.exceptions.ValidationException;
 import ru.practicum.ewm.mapper.EventMapper;
@@ -19,10 +18,7 @@ import ru.practicum.ewm.model.Category;
 import ru.practicum.ewm.model.Event;
 import ru.practicum.ewm.model.Location;
 import ru.practicum.ewm.model.User;
-import ru.practicum.ewm.repository.CategoryRepository;
-import ru.practicum.ewm.repository.EventRepository;
-import ru.practicum.ewm.repository.LocationRepository;
-import ru.practicum.ewm.repository.UserRepository;
+import ru.practicum.ewm.repository.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,6 +37,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
+    private final RequestRepository requestRepository;
 
     private final StatsClient statsClient;
 
@@ -213,6 +210,8 @@ public class EventServiceImpl implements EventService {
                 Sort.by(SortValue.EVENT_DATE.equals(sort) ? "eventDate" : "views"));
         List<Event> eventEntities = eventRepository.searchPublishedEvents(categoryIdList, paid, start, end, pageRequest)
                 .getContent();
+
+        // сохранили просмотр от данного ip по следующему requestUri
         statsClient.hit(userIp, requestUri);
 
         if (eventEntities.isEmpty()) {
@@ -227,6 +226,9 @@ public class EventServiceImpl implements EventService {
             eventEntityPredicate = eventEntity -> true;
         }
 
+        // здесь сохранить данные из модели в ШортДТО параллельно сохраняя кол-во запросов и количество просмотров
+
+
         return eventEntities.stream().map(eventMapper::toEventShortDto).collect(Collectors.toList());
     }
 
@@ -238,7 +240,24 @@ public class EventServiceImpl implements EventService {
 
         statsClient.hit(userIp, requestUri);
 
-        return eventMapper.toEventFullDto(event);
+        EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
+
+        // сохранили в ДТО кол-во подтвержденных запросов
+        eventFullDto.setConfirmedRequests(requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED));
+
+        // сохранили в ДТО количество просмотров
+        List<String> uris = new ArrayList<>();
+        uris.add(requestUri);
+
+        ViewStatsRequest viewStatsRequest = new ViewStatsRequest(
+                LocalDateTime.now().minusYears(100),
+                LocalDateTime.now(),
+                uris,
+                true);
+        List<ViewStats> viewStatsList = statsClient.getStats(viewStatsRequest);
+        eventFullDto.setViews(viewStatsList.get(0).getHits());
+
+        return eventFullDto;
     }
 
     private void validateTime(LocalDateTime start) {
