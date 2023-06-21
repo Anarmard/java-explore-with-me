@@ -8,6 +8,8 @@ import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.service.user.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -19,8 +21,8 @@ public class AdmUserController {
     // получение инфо о пользователях
     @GetMapping
     public List<UserDto> getUserList(@RequestParam(required = false, name = "ids") List<Long> idList,
-                                     @RequestParam(defaultValue = "0") Integer from,
-                                     @RequestParam(defaultValue = "10") Integer size) {
+                                     @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                     @RequestParam(defaultValue = "10") @Positive Integer size) {
         return userService.getUserList(idList, PageRequest.of(from, size));
     }
 

@@ -11,7 +11,6 @@ import ru.practicum.ewm.dto.stats.EndpointHit;
 import ru.practicum.ewm.dto.stats.ViewStats;
 import ru.practicum.ewm.dto.stats.ViewStatsRequest;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -48,11 +47,11 @@ public class StatsClient {
                 .build();
     }
 
-    public void hit(HttpServletRequest userRequest) {
+    public void hit(String userIp, String requestUri) {
         EndpointHit hit = EndpointHit.builder()
                 .app(application)
-                .ip(userRequest.getRemoteAddr())
-                .uri(userRequest.getRequestURI())
+                .ip(userIp)
+                .uri(requestUri)
                 .timestamp(LocalDateTime.now())
                 .build();
 

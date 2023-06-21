@@ -4,7 +4,6 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.enums.SortValue;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface EventService {
@@ -31,8 +30,7 @@ public interface EventService {
                                         String rangeStart,
                                         String rangeEnd,
                                         Integer from,
-                                        Integer size,
-                                        HttpServletRequest request);
+                                        Integer size);
 
     // редактирование данных события и его статуса
     EventFullDto updateEventByAdmin(Long eventId,
@@ -49,10 +47,10 @@ public interface EventService {
                                      SortValue sort,
                                      Integer from,
                                      Integer size,
-                                     HttpServletRequest request);
+                                     String userIp,
+                                     String requestUri);
 
     // получение подробной инфо о событии по его id
-    EventFullDto getEvent(Long eventId,
-                          HttpServletRequest request);
+    EventFullDto getEvent(Long eventId, String userIp, String requestUri);
 
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Getter
@@ -14,6 +15,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewCompilationDto {
     Boolean pinned;
+    @NotNull
     String title;
     Set<Long> events; // здесь id event
 }

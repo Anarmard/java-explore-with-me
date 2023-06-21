@@ -24,7 +24,6 @@ import ru.practicum.ewm.repository.EventRepository;
 import ru.practicum.ewm.repository.LocationRepository;
 import ru.practicum.ewm.repository.UserRepository;
 
-import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -65,7 +64,6 @@ public class EventServiceImpl implements EventService {
         // формируем event для сохранения в БД
         Event eventToSave = eventMapper.toEvent(newEventDto);
         eventToSave.setState(EventState.PENDING);
-        eventToSave.setConfirmedRequests(0L);
         eventToSave.setCreatedOn(LocalDateTime.now());
 
         Category category = categoryRepository.findById(newEventDto.getCategory())
@@ -74,12 +72,6 @@ public class EventServiceImpl implements EventService {
         eventToSave.setInitiator(user);
         eventRepository.save(eventToSave);
         return eventMapper.toEventFullDto(eventToSave);
-    }
-
-    private void validateTime(LocalDateTime start) {
-        if (start.isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Дата начала события должна быть не ранее чем за час от даты публикации");
-        }
     }
 
     // полная инфо о событии добавленное текущим пользователем
@@ -116,29 +108,11 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(eventToUpdate);
     }
 
-    private void updateEventEntity(UpdateEventUserRequest event, Event eventToUpdate) {
-        eventToUpdate.setAnnotation(Objects.requireNonNullElse(event.getAnnotation(), eventToUpdate.getAnnotation()));
-        eventToUpdate.setCategory(event.getCategory() == null
-                ? eventToUpdate.getCategory()
-                : categoryRepository.findById(event.getCategory()).orElseThrow(() -> new NotFoundException("Category not fount")));
-        eventToUpdate.setDescription(Objects.requireNonNullElse(event.getDescription(), eventToUpdate.getDescription()));
-        eventToUpdate.setEventDate(Objects.requireNonNullElse(event.getEventDate(), eventToUpdate.getEventDate()));
-        eventToUpdate.setLocation(event.getLocation() == null
-                ? eventToUpdate.getLocation()
-                : locationRepository.findByLatAndLon(event.getLocation().getLat(), event.getLocation().getLon())
-                .orElse(new Location(null, event.getLocation().getLat(), event.getLocation().getLon())));
-        eventToUpdate.setPaid(Objects.requireNonNullElse(event.getPaid(), eventToUpdate.getPaid()));
-        eventToUpdate.setParticipantLimit(Objects.requireNonNullElse(event.getParticipantLimit(), eventToUpdate.getParticipantLimit()));
-        eventToUpdate.setRequestModeration(Objects.requireNonNullElse(event.getRequestModeration(), eventToUpdate.getRequestModeration()));
-        eventToUpdate.setTitle(Objects.requireNonNullElse(event.getTitle(), eventToUpdate.getTitle()));
-    }
-
     // admin
     // поиск событий
     @Override
     public List<EventFullDto> getEventsByAdmin(List<Long> userIdList, List<String> states, List<Long> categories,
-                                               String rangeStart, String rangeEnd, Integer from, Integer size,
-                                               HttpServletRequest request) {
+                                               String rangeStart, String rangeEnd, Integer from, Integer size) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size);
         if (states == null & rangeStart == null & rangeEnd == null) {
@@ -174,16 +148,6 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private List<EventFullDto> findEventDtoWithAllParameters(List<Long> userIds, List<Long> categories,
-                                                             PageRequest pageRequest, List<EventState> stateList,
-                                                             LocalDateTime start, LocalDateTime end) {
-        Page<Event> eventsWithPage = eventRepository.findAllWithAllParameters(userIds, stateList, categories, start, end,
-                pageRequest);
-
-        return eventsWithPage.stream().map(eventMapper::toEventFullDto).collect(Collectors.toList());
-    }
-
-
     // редактирование данных события и его статуса
     @Override
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
@@ -216,31 +180,12 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toEventFullDto(eventToUpdate);
     }
 
-
-    private void updateEventEntity(UpdateEventAdminRequest event, Event eventToUpdate) {
-        eventToUpdate.setAnnotation(Objects.requireNonNullElse(event.getAnnotation(), eventToUpdate.getAnnotation()));
-        eventToUpdate.setCategory(event.getCategory() == null
-                ? eventToUpdate.getCategory()
-                : categoryRepository.findById(event.getCategory()).orElseThrow(() -> new NotFoundException("Category not fount")));
-        eventToUpdate.setDescription(Objects.requireNonNullElse(event.getDescription(), eventToUpdate.getDescription()));
-        eventToUpdate.setEventDate(Objects.requireNonNullElse(event.getEventDate(), eventToUpdate.getEventDate()));
-        eventToUpdate.setLocation(event.getLocation() == null
-                ? eventToUpdate.getLocation()
-                : locationRepository.findByLatAndLon(event.getLocation().getLat(), event.getLocation().getLon())
-                .orElse(new Location(null, event.getLocation().getLat(), event.getLocation().getLon())));
-        eventToUpdate.setPaid(Objects.requireNonNullElse(event.getPaid(), eventToUpdate.getPaid()));
-        eventToUpdate.setParticipantLimit(Objects.requireNonNullElse(event.getParticipantLimit(), eventToUpdate.getParticipantLimit()));
-        eventToUpdate.setRequestModeration(Objects.requireNonNullElse(event.getRequestModeration(), eventToUpdate.getRequestModeration()));
-        eventToUpdate.setTitle(Objects.requireNonNullElse(event.getTitle(), eventToUpdate.getTitle()));
-    }
-
-
     // public
     // получение событий с возможностью фильтрации
     @Override
     public List<EventShortDto> getEventList(String text, List<Long> categoryIdList, Boolean paid, String rangeStart,
                                             String rangeEnd, Boolean onlyAvailable, SortValue sort, Integer from,
-                                            Integer size, HttpServletRequest request) {
+                                            Integer size, String userIp, String requestUri) {
         LocalDateTime start = null;
         LocalDateTime end = null;
 
@@ -268,7 +213,7 @@ public class EventServiceImpl implements EventService {
                 Sort.by(SortValue.EVENT_DATE.equals(sort) ? "eventDate" : "views"));
         List<Event> eventEntities = eventRepository.searchPublishedEvents(categoryIdList, paid, start, end, pageRequest)
                 .getContent();
-        statsClient.hit(request);
+        statsClient.hit(userIp, requestUri);
 
         if (eventEntities.isEmpty()) {
             return Collections.emptyList();
@@ -287,13 +232,61 @@ public class EventServiceImpl implements EventService {
 
     // получение подробной инфо о событии по его id
     @Override
-    public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
+    public EventFullDto getEvent(Long eventId, String userIp, String requestUri) {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Event does not exist " + eventId));
 
-        statsClient.hit(request);
+        statsClient.hit(userIp, requestUri);
 
         return eventMapper.toEventFullDto(event);
     }
 
+    private void validateTime(LocalDateTime start) {
+        if (start.isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Дата начала события должна быть не ранее чем за час от даты публикации");
+        }
+    }
+
+    private void updateEventEntity(UpdateEventUserRequest event, Event eventToUpdate) {
+        eventToUpdate.setAnnotation(Objects.requireNonNullElse(event.getAnnotation(), eventToUpdate.getAnnotation()));
+        eventToUpdate.setCategory(event.getCategory() == null
+                ? eventToUpdate.getCategory()
+                : categoryRepository.findById(event.getCategory()).orElseThrow(() -> new NotFoundException("Category not fount")));
+        eventToUpdate.setDescription(Objects.requireNonNullElse(event.getDescription(), eventToUpdate.getDescription()));
+        eventToUpdate.setEventDate(Objects.requireNonNullElse(event.getEventDate(), eventToUpdate.getEventDate()));
+        eventToUpdate.setLocation(event.getLocation() == null
+                ? eventToUpdate.getLocation()
+                : locationRepository.findByLatAndLon(event.getLocation().getLat(), event.getLocation().getLon())
+                .orElse(new Location(null, event.getLocation().getLat(), event.getLocation().getLon())));
+        eventToUpdate.setPaid(Objects.requireNonNullElse(event.getPaid(), eventToUpdate.getPaid()));
+        eventToUpdate.setParticipantLimit(Objects.requireNonNullElse(event.getParticipantLimit(), eventToUpdate.getParticipantLimit()));
+        eventToUpdate.setRequestModeration(Objects.requireNonNullElse(event.getRequestModeration(), eventToUpdate.getRequestModeration()));
+        eventToUpdate.setTitle(Objects.requireNonNullElse(event.getTitle(), eventToUpdate.getTitle()));
+    }
+
+    private List<EventFullDto> findEventDtoWithAllParameters(List<Long> userIds, List<Long> categories,
+                                                             PageRequest pageRequest, List<EventState> stateList,
+                                                             LocalDateTime start, LocalDateTime end) {
+        Page<Event> eventsWithPage = eventRepository.findAllWithAllParameters(userIds, stateList, categories, start, end,
+                pageRequest);
+
+        return eventsWithPage.stream().map(eventMapper::toEventFullDto).collect(Collectors.toList());
+    }
+
+    private void updateEventEntity(UpdateEventAdminRequest event, Event eventToUpdate) {
+        eventToUpdate.setAnnotation(Objects.requireNonNullElse(event.getAnnotation(), eventToUpdate.getAnnotation()));
+        eventToUpdate.setCategory(event.getCategory() == null
+                ? eventToUpdate.getCategory()
+                : categoryRepository.findById(event.getCategory()).orElseThrow(() -> new NotFoundException("Category not fount")));
+        eventToUpdate.setDescription(Objects.requireNonNullElse(event.getDescription(), eventToUpdate.getDescription()));
+        eventToUpdate.setEventDate(Objects.requireNonNullElse(event.getEventDate(), eventToUpdate.getEventDate()));
+        eventToUpdate.setLocation(event.getLocation() == null
+                ? eventToUpdate.getLocation()
+                : locationRepository.findByLatAndLon(event.getLocation().getLat(), event.getLocation().getLon())
+                .orElse(new Location(null, event.getLocation().getLat(), event.getLocation().getLon())));
+        eventToUpdate.setPaid(Objects.requireNonNullElse(event.getPaid(), eventToUpdate.getPaid()));
+        eventToUpdate.setParticipantLimit(Objects.requireNonNullElse(event.getParticipantLimit(), eventToUpdate.getParticipantLimit()));
+        eventToUpdate.setRequestModeration(Objects.requireNonNullElse(event.getRequestModeration(), eventToUpdate.getRequestModeration()));
+        eventToUpdate.setTitle(Objects.requireNonNullElse(event.getTitle(), eventToUpdate.getTitle()));
+    }
 }

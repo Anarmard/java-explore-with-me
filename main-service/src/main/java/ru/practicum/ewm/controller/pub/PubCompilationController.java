@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.compilation.CompilationDto;
 import ru.practicum.ewm.service.compilation.CompilationService;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -19,8 +21,8 @@ public class PubCompilationController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<CompilationDto> getCompilationList(@RequestParam(required = false) Boolean pinned,
-                                                   @RequestParam(required = false, defaultValue = "0") Integer from,
-                                                   @RequestParam(required = false, defaultValue = "10") Integer size) {
+                                                   @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                                   @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
         return compilationService.getCompilationList(pinned, PageRequest.of(from, size));
     }
 

@@ -7,8 +7,9 @@ import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.dto.event.UpdateEventAdminRequest;
 import ru.practicum.ewm.service.event.EventService;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -25,10 +26,9 @@ public class AdmEventController {
                                                   @RequestParam(required = false) List<Long> categories,
                                                   @RequestParam(required = false) String rangeStart,
                                                   @RequestParam(required = false) String rangeEnd,
-                                                  @RequestParam(defaultValue = "0") Integer from,
-                                                  @RequestParam(defaultValue = "10") Integer size,
-                                                  HttpServletRequest request) {
-        return eventService.getEventsByAdmin(userIdList, states, categories, rangeStart, rangeEnd, from, size, request);
+                                                  @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                                  @RequestParam(defaultValue = "10") @Positive Integer size) {
+        return eventService.getEventsByAdmin(userIdList, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     // редактирование данных события и его статуса

@@ -10,6 +10,8 @@ import ru.practicum.ewm.enums.SortValue;
 import ru.practicum.ewm.service.event.EventService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -25,22 +27,22 @@ public class PubEventController {
                                             @RequestParam(required = false) List<Long> categories,
                                             @RequestParam(required = false) Boolean paid,
                                             @RequestParam(required = false)
-                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String rangeStart,
+                                                @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String rangeStart,
                                             @RequestParam(required = false)
-                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String rangeEnd,
+                                                @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String rangeEnd,
                                             @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,
                                             @RequestParam(required = false) SortValue sort,
-                                            @RequestParam(required = false, defaultValue = "0") Integer from,
-                                            @RequestParam(required = false, defaultValue = "10") Integer size,
+                                            @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
+                                            @RequestParam(required = false, defaultValue = "10") @Positive Integer size,
                                             HttpServletRequest request) {
         return eventService.getEventList(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from,
-                size, request);
+                size, request.getRemoteAddr(), request.getRequestURI());
     }
 
     // получение подробной инфо о событии по его id
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
-        return eventService.getEvent(id, request);
+        return eventService.getEvent(id, request.getRemoteAddr(), request.getRequestURI());
     }
 }

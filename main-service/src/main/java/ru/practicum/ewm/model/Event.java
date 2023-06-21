@@ -26,9 +26,6 @@ public class Event {
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     Category category; // категории к которой относится событие
 
-    @Column(name = "confirmed_requests")
-    Long confirmedRequests; // Количество одобренных заявок на участие в данном событии
-
     @Column(name = "created_on")
     LocalDateTime createdOn; // Дата и время создания события (в формате "yyyy-MM-dd HH:mm:ss")
 
@@ -63,7 +60,4 @@ public class Event {
 
     @Column(name = "title")
     String title; // Заголовок
-
-    @Column(name = "views")
-    Long views; // Количество просмотрев события
 }

@@ -1,4 +1,4 @@
-package ru.practicum.ewm.dto.category;
+package ru.practicum.ewm.dto.location;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -6,13 +6,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.NotNull;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NewCategoryDto {
-    @NotNull
-    String name;
+public class LocationDto {
+    Long id;
+
+    Float lat; // Широта
+
+    Float lon; // Долгота
 }

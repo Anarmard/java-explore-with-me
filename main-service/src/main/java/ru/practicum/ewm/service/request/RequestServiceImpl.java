@@ -22,7 +22,6 @@ import ru.practicum.ewm.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -61,7 +60,9 @@ public class RequestServiceImpl implements RequestService {
             throw new ValidationException("Moderation is not required " + eventId);
         }
 
-        if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
+        Long confirmedRequest = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+
+        if (confirmedRequest >= event.getParticipantLimit()) {
             throw new ValidationException("Participation limit exceed " + eventId);
         }
 
@@ -70,9 +71,10 @@ public class RequestServiceImpl implements RequestService {
         // получаем статус события
         RequestStatusUpdate status = eventRequest.getStatus();
 
-        List<Request> requestList = requestIdList.stream().map((id) -> requestRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Request does not exist "
-                        + id))).collect(Collectors.toList());
+        List<Request> requestList = requestRepository.findAllByIdIn(requestIdList);
+        if (requestList.isEmpty()) {
+            throw new NotFoundException("Requests does not exist ");
+        }
 
         List<Request> confirmedRequests = new ArrayList<>();
         List<Request> rejectedRequests = new ArrayList<>();
@@ -82,7 +84,7 @@ public class RequestServiceImpl implements RequestService {
         // перебираем все запросы
         for (Request currentRequest : requestList) {
             if (status == RequestStatusUpdate.CONFIRMED && currentRequest.getStatus().equals(RequestStatus.PENDING)) {
-                if (event.getConfirmedRequests() >= event.getParticipantLimit()) {
+                if (confirmedRequest >= event.getParticipantLimit()) {
                     // всем отказываем когда превышен лимит
                     currentRequest.setStatus(RequestStatus.REJECTED);
                     updatedRequests.add(currentRequest);
@@ -90,7 +92,7 @@ public class RequestServiceImpl implements RequestService {
                 }
                 currentRequest.setStatus(RequestStatus.CONFIRMED);
                 updatedRequests.add(currentRequest);
-                event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+                confirmedRequest++;
                 confirmedRequests.add(currentRequest);
             }
             if (status == RequestStatusUpdate.REJECTED && currentRequest.getStatus().equals(RequestStatus.PENDING)) {
@@ -144,8 +146,7 @@ public class RequestServiceImpl implements RequestService {
         // создаем запрос
         Request request = new Request(LocalDateTime.now(), event, requester, RequestStatus.PENDING);
 
-        Optional<Request> requestFromDb = requestRepository.findByRequesterIdAndEventId(userId, eventId);
-        if (requestFromDb.isPresent()) {
+        if (requestRepository.existsByRequesterIdAndEventId(userId, eventId)) {
             throw new AlreadyExistsException("Request already exist: userId {}, eventId {} " + userId + eventId);
         }
 
@@ -156,11 +157,12 @@ public class RequestServiceImpl implements RequestService {
             throw new ValidationException("Event has not published yet");
         }
 
+        Long confirmedRequest = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
         Long limit = event.getParticipantLimit();
 
         // если есть ограничение, то проверяем. Если ограничения нет, то автоматически подтверждаем запрос
         if (limit != 0) {
-            if (limit.equals(event.getConfirmedRequests())) {
+            if (limit.equals(confirmedRequest)) {
                 throw new ValidationException("Max confirmed requests was reached: " + limit);
             }
         } else {
@@ -170,7 +172,6 @@ public class RequestServiceImpl implements RequestService {
         // если модерация не нужна, то автоматом подтверждаем запрос и увеличиваем счетчик
         if (!event.getRequestModeration()) {
             request.setStatus(RequestStatus.CONFIRMED);
-            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         }
 
         requestRepository.save(request);

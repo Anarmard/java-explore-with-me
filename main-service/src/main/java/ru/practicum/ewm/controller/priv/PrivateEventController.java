@@ -15,6 +15,8 @@ import ru.practicum.ewm.service.event.EventService;
 import ru.practicum.ewm.service.request.RequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -28,8 +30,8 @@ public class PrivateEventController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getEventsByInitiator(@PathVariable Long userId,
-                                                    @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                                    @RequestParam(name = "size", defaultValue = "10") Integer size) {
+                                                    @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                                    @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
         return eventService.getEventsByInitiator(userId, PageRequest.of(from, size));
     }
 
