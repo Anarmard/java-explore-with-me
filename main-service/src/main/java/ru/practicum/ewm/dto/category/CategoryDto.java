@@ -3,7 +3,7 @@ package ru.practicum.ewm.dto.category;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -12,6 +12,6 @@ import javax.validation.constraints.NotNull;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CategoryDto {
     Long id;
-    @NotNull
+    @NotBlank
     String name;
 }

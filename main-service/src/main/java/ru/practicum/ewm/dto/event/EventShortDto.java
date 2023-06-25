@@ -6,7 +6,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.user.UserShortDto;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,19 +16,19 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventShortDto {
     Long id;
-    @NotNull
+    @NotBlank
     String annotation;
-    @NotNull
+    @NotBlank
     CategoryDto category;
     Long confirmedRequests;
-    @NotNull
+    @NotBlank
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
-    @NotNull
+    @NotBlank
     UserShortDto initiator;
-    @NotNull
+    @NotBlank
     Boolean paid;
-    @NotNull
+    @NotBlank
     String title;
     Long views;
 }

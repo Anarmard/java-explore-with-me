@@ -3,7 +3,7 @@ package ru.practicum.ewm.dto.compilation;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
 @Getter
@@ -13,7 +13,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewCompilationDto {
     Boolean pinned;
-    @NotNull
+    @NotBlank
     String title;
     Set<Long> events; // здесь id event
 }
