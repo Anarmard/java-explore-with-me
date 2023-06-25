@@ -44,11 +44,9 @@ public class RequestServiceImpl implements RequestService {
 
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User does not exist " + userId);
-            // return participationRequestDtoList;
         }
         if (!eventRepository.existsById(eventId)) {
             throw new NotFoundException("Event does not exist " + eventId);
-            // return participationRequestDtoList;
         }
 
         List<Request> requestList;

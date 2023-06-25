@@ -1,7 +1,6 @@
 package ru.practicum.ewm.controller.pub;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.compilation.CompilationDto;
 import ru.practicum.ewm.service.compilation.CompilationService;
@@ -21,7 +20,7 @@ public class PubCompilationController {
     public List<CompilationDto> getCompilationList(@RequestParam(required = false) Boolean pinned,
                                                    @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
                                                    @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
-        return compilationService.getCompilationList(pinned, PageRequest.of(from / size, size));
+        return compilationService.getCompilationList(pinned, from, size);
     }
 
     // получение подборки событие по его id

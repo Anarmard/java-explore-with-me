@@ -2,6 +2,7 @@ package ru.practicum.ewm.service.compilation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.client.stats.StatsClient;
@@ -38,8 +39,17 @@ public class CompilationServiceImpl implements CompilationService {
     // public
     // получение подборок событий
     @Override
-    public List<CompilationDto> getCompilationList(Boolean pinned, Pageable pageable) {
-        Page<Compilation> compilationPage = compilationRepository.findAllByPinnedOrderByIdDesc(pinned, pageable);
+    public List<CompilationDto> getCompilationList(Boolean pinned, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+
+        Page<Compilation> compilationPage;
+
+        if (pinned != null) {
+            compilationPage = compilationRepository.findAllByPinnedOrderByIdDesc(pinned, pageable);
+        } else {
+            compilationPage = compilationRepository.findAll(pageable);
+        }
+
         List<Compilation> compilationList = compilationPage.getContent();
 
         List<CompilationDto> compilationDtoList = new ArrayList<>();

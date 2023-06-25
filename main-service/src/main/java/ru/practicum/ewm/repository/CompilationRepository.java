@@ -7,4 +7,6 @@ import ru.practicum.ewm.model.Compilation;
 
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
     Page<Compilation> findAllByPinnedOrderByIdDesc(Boolean pinned, Pageable pageable);
+
+    Page<Compilation> findAll(Pageable pageable);
 }
