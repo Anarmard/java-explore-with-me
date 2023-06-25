@@ -16,7 +16,6 @@ public class PrivateRequestController {
 
     // Получение инфо о заявках текущего пользователя на участие в чужих событиях
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getRequestsByCurrentUser(@PathVariable Long userId) {
         return requestService.getRequestsByCurrentUser(userId);
     }

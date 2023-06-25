@@ -36,14 +36,26 @@ public class RequestServiceImpl implements RequestService {
     // Получение инфо о запросах на участие в событии текущего пользователя
     @Override
     public List<ParticipationRequestDto> getRequestsByCurrentUserOfCurrentEvent(Long userId, Long eventId) {
+        List<ParticipationRequestDto> participationRequestDtoList = new ArrayList<>();
+        if (!userRepository.existsById(userId) && !eventRepository.existsById(eventId)) {
+            return participationRequestDtoList;
+        }
+
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User does not exist " + userId);
+            // return participationRequestDtoList;
         }
         if (!eventRepository.existsById(eventId)) {
             throw new NotFoundException("Event does not exist " + eventId);
+            // return participationRequestDtoList;
         }
+
         List<Request> requestList = requestRepository.findAllRequestsForEventInitiator(userId, eventId);
-        return requestList.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
+
+        for (Request request : requestList) {
+            participationRequestDtoList.add(requestMapper.toParticipationRequestDto(request));
+        }
+        return participationRequestDtoList;
     }
 
     // Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя
@@ -128,7 +140,11 @@ public class RequestServiceImpl implements RequestService {
             throw new NotFoundException("User does not exist");
         }
         List<Request> requestList = requestRepository.findAllByRequesterIdAndNotInitiator(userId);
-        return requestList.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
+        List<ParticipationRequestDto> participationRequestDtoList = new ArrayList<>();
+        for (Request request : requestList) {
+            participationRequestDtoList.add(requestMapper.toParticipationRequestDto(request));
+        }
+        return participationRequestDtoList;
     }
 
     // Добавление запроса от текущего пользователя на участие в событии

@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
-import ru.practicum.ewm.enums.SortValue;
 import ru.practicum.ewm.service.event.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +30,7 @@ public class PubEventController {
                                             @RequestParam(required = false)
                                                 @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String rangeEnd,
                                             @RequestParam(required = false, defaultValue = "false") Boolean onlyAvailable,
-                                            @RequestParam(required = false) SortValue sort,
+                                            @RequestParam(required = false) String sort,
                                             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
                                             @RequestParam(required = false, defaultValue = "10") @Positive Integer size,
                                             HttpServletRequest request) {

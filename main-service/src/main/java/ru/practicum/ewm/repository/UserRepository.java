@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findAllByIdIn(List<Long> idList, Pageable pageable);
 
     Boolean existsByName(String name);
+
+    Boolean existsByIdIn(List<Long> userId);
 }

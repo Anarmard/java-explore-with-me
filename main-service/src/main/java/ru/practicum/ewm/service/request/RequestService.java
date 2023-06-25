@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RequestService {
 
-    // private
+    // private: events
     // Получение инфо о запросах на участие в событии текущего пользователя
     List<ParticipationRequestDto> getRequestsByCurrentUserOfCurrentEvent(Long userId, Long eventId);
 
@@ -17,6 +17,7 @@ public interface RequestService {
                                                  Long eventId,
                                                  EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest);
 
+    // private: requests
     // Получение инфо о заявках текущего пользователя на участие в чужих событиях
     List<ParticipationRequestDto> getRequestsByCurrentUser(Long userId);
 

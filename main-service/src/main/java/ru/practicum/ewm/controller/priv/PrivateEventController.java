@@ -28,7 +28,6 @@ public class PrivateEventController {
 
     // получение событий текущего пользователя
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getEventsByInitiator(@PathVariable Long userId,
                                                     @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                                     @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
@@ -45,7 +44,6 @@ public class PrivateEventController {
 
     // полная инфо о событии добавленное текущим пользователем
     @GetMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
     public EventFullDto getEventByInitiator(@PathVariable Long userId,
                                             @PathVariable Long eventId) {
         return eventService.getEventByInitiator(userId, eventId);
@@ -61,7 +59,6 @@ public class PrivateEventController {
 
     // Получение инфо о запросах на участие в событии текущего пользователя
     @GetMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getRequestsByCurrentUserOfCurrentEvent(@PathVariable Long userId,
                                                                                 @PathVariable Long eventId) {
         return requestService.getRequestsByCurrentUserOfCurrentEvent(userId, eventId);

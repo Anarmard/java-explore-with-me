@@ -2,7 +2,6 @@ package ru.practicum.ewm.service.event;
 
 import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.dto.event.*;
-import ru.practicum.ewm.enums.SortValue;
 
 import java.util.List;
 
@@ -44,7 +43,7 @@ public interface EventService {
                                      String rangeStart,
                                      String rangeEnd,
                                      Boolean onlyAvailable,
-                                     SortValue sort,
+                                     String sort,
                                      Integer from,
                                      Integer size,
                                      String userIp,
