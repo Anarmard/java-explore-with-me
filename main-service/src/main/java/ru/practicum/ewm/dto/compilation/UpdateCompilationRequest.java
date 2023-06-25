@@ -3,6 +3,7 @@ package ru.practicum.ewm.dto.compilation;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 // Изменение информации о подборке событий.
@@ -15,6 +16,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateCompilationRequest {
     Boolean pinned;
+    @Size(min = 1, max = 50)
     String title;
     Set<Long> events; // здесь id event
 }

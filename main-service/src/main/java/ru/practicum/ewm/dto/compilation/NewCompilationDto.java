@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.Set;
 
 @Getter
@@ -14,6 +15,7 @@ import java.util.Set;
 public class NewCompilationDto {
     Boolean pinned;
     @NotBlank
+    @Size(max = 50)
     String title;
     Set<Long> events; // здесь id event
 }

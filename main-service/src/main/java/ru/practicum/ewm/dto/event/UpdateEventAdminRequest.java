@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.dto.location.LocationDto;
 import ru.practicum.ewm.enums.StateActionAdmin;
 
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Getter
@@ -14,8 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateEventAdminRequest {
+    @Size(min = 20, max = 2000)
     String annotation;
     Long category;
+    @Size(min = 20, max = 7000)
     String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
@@ -24,5 +27,6 @@ public class UpdateEventAdminRequest {
     Long participantLimit;
     Boolean requestModeration;
     StateActionAdmin stateAction; // PUBLISH_EVENT, REJECT_EVENT
+    @Size(min = 3, max = 120)
     String title;
 }

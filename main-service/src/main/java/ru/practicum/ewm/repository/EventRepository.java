@@ -30,11 +30,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @Query(value = "SELECT * FROM events e " +
             "WHERE (:text is null OR lower(e.annotation) LIKE lower(concat('%',cast(:text AS text),'%')) " +
             "OR lower(e.description) LIKE lower(concat('%',cast(:text AS text),'%')))" +
-            "AND (:categories is null or e.category_id IN (:categories)) " +
+            "AND (:categories is null or e.category_id IN (cast(cast(:categories as text) as bigint))) " +
             "AND e.state = 'PUBLISHED' " +
-            "AND (:paid is null or e.paid = :paid) " +
+            "AND (:paid is null or e.paid = cast(cast(:paid as text) as boolean)) " +
             "AND (e.event_date >= :rangeStart) " +
-            "AND (:rangeEnd is null or e.event_date < :rangeEnd) ", nativeQuery = true)
+            "AND (cast(:rangeEnd as timestamp) is null or e.event_date < cast(:rangeEnd as timestamp)) ",
+            nativeQuery = true)
     Page<Event> searchPublishedEvents(@Param("text") String text,
                                       @Param("categories") List<Long> categories,
                                       @Param("paid") Boolean paid,
@@ -43,13 +44,14 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                       Pageable pageable);
 
     @Query(value = "SELECT * FROM events e " +
-            "WHERE (:userId is null or e.initiator_id IN :userIds) " +
-            "AND (:states is null or e.state IN :states) " +
-            "AND (:categories is null or e.category_id IN :categories) " +
-            "AND (:rangeStart is null or e.event_date >= :rangeStart) " +
-            "AND (:rangeEnd is null or e.event_date < :rangeEnd) ", nativeQuery = true)
+            "WHERE (:userId is null or e.initiator_id IN (cast(cast(:userIds as text) as bigint))) " +
+            "AND (:states is null or e.state IN (cast(:states as text))) " +
+            "AND (:categories is null or e.category_id IN (cast(cast(:categories as text) as bigint))) " +
+            "AND (cast(:rangeStart as timestamp) is null or e.event_date >= cast(:rangeStart as timestamp)) " +
+            "AND (cast(:rangeEnd as timestamp)  is null or e.event_date < cast(:rangeEnd as timestamp)) ",
+            nativeQuery = true)
     Page<Event> findEvents(@Param("userIds") List<Long> userIds,
-                           @Param("states") List<EventState> states,
+                           @Param("states") List<String> states,
                            @Param("categories") List<Long> categories,
                            @Param("rangeStart") LocalDateTime rangeStart,
                            @Param("rangeEnd") LocalDateTime rangeEnd,

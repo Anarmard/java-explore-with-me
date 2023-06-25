@@ -20,7 +20,10 @@ import ru.practicum.ewm.repository.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -126,15 +129,6 @@ public class EventServiceImpl implements EventService {
             return eventFullDtoList;
         }
 
-        List<EventState> eventStateList = new ArrayList<>();
-        if (states != null) {
-            if (!states.isEmpty()) {
-                for (String stateString : states) {
-                    eventStateList.add(EventState.valueOf(stateString));
-                }
-            }
-        }
-
         LocalDateTime start;
         if (rangeStart != null && !rangeStart.isEmpty()) {
             start = LocalDateTime.parse(rangeStart, DTF);
@@ -149,7 +143,7 @@ public class EventServiceImpl implements EventService {
             end = LocalDateTime.now().plusYears(5);
         }
 
-        List<Event> eventList = eventRepository.findEvents(userIdList, eventStateList, categories, start, end, pageRequest).toList();
+        List<Event> eventList = eventRepository.findEvents(userIdList, states, categories, start, end, pageRequest).toList();
         for (Event currentEvent : eventList) {
             EventFullDto eventFullDto = eventMapper.toEventFullDto(currentEvent);
             eventFullDtoList.add(addConfirmedRequestsAndViews(eventFullDto));
@@ -225,11 +219,11 @@ public class EventServiceImpl implements EventService {
         List<Event> eventList = eventRepository.searchPublishedEvents(text, categoryIdList, paid, start, end, pageRequest)
                 .getContent();
 
-        if (eventList.isEmpty()) {
-            return Collections.emptyList();
+        List<EventShortDto> eventShortDtoList = new ArrayList<>();
+        if (eventList == null) {
+            return eventShortDtoList;
         }
 
-        List<EventShortDto> eventShortDtoList = new ArrayList<>();
         for (Event currentEvent : eventList) {
             eventShortDtoList.add(addShortConfirmedRequestsAndViews(eventMapper.toEventShortDto(currentEvent)));
         }

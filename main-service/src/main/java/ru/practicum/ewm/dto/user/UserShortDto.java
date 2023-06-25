@@ -6,15 +6,17 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserShortDto {
-    @NotNull
+    @NotBlank
     Long id;
-    @NotNull
+    @NotBlank
+    @Size(min = 2, max = 250)
     String name;
 }
