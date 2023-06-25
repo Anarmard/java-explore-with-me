@@ -16,7 +16,7 @@ public interface CategoryService {
     void deleteCategory(Long categoryId);
 
     // изменение категории
-    CategoryDto updateCategory(Long categoryId, CategoryDto categoryDto);
+    CategoryDto updateCategory(Long categoryId, NewCategoryDto newCategoryDto);
 
     // public
     // получение категорий

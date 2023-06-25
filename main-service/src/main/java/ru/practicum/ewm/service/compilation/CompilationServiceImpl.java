@@ -149,7 +149,11 @@ public class CompilationServiceImpl implements CompilationService {
                     uris,
                     true);
             List<ViewStats> viewStatsList = statsClient.getStats(viewStatsRequest);
-            eventDto.setViews(viewStatsList.get(0).getHits());
+            if (viewStatsList.isEmpty()) {
+                eventDto.setViews(0L);
+            } else {
+                eventDto.setViews(viewStatsList.get(0).getHits());
+            }
         }
         return compilationDto;
     }

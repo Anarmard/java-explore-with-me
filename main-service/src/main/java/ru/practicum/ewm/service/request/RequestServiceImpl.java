@@ -78,9 +78,9 @@ public class RequestServiceImpl implements RequestService {
             throw new ValidationException("Participation limit exceed " + eventId);
         }
 
-        // получаем список всех запросов
+        // получаем список всех запросов статус которых нужно обновить
         List<Long> requestIdList = eventRequest.getRequestIds();
-        // получаем статус события
+        // получаем статус события, который нужно проставить у всех событий
         RequestStatusUpdate status = eventRequest.getStatus();
 
         List<Request> requestList = requestRepository.findAllByIdIn(requestIdList);
@@ -113,6 +113,10 @@ public class RequestServiceImpl implements RequestService {
                 updatedRequests.add(currentRequest);
                 rejectedRequests.add(currentRequest);
             }
+            if (status == RequestStatusUpdate.REJECTED && currentRequest.getStatus().equals(RequestStatus.CONFIRMED)) {
+                throw new AlreadyExistsException("Request was already confirmed");
+            }
+
         }
 
         // сохранили все запросы с новыми статусами в БД
@@ -167,10 +171,10 @@ public class RequestServiceImpl implements RequestService {
         }
 
         if (event.getInitiator().getId().equals(userId)) {
-            throw new ValidationException("Initiator could not be requester " + userId);
+            throw new AlreadyExistsException("Initiator could not be requester " + userId);
         }
         if (!(event.getState().equals(EventState.PUBLISHED))) {
-            throw new ValidationException("Event has not published yet");
+            throw new AlreadyExistsException("Event has not published yet");
         }
 
         Long confirmedRequest = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
@@ -179,7 +183,7 @@ public class RequestServiceImpl implements RequestService {
         // если есть ограничение, то проверяем. Если ограничения нет, то автоматически подтверждаем запрос
         if (limit != 0) {
             if (limit.equals(confirmedRequest)) {
-                throw new ValidationException("Max confirmed requests was reached: " + limit);
+                throw new AlreadyExistsException("Max confirmed requests was reached: " + limit);
             }
         } else {
             request.setStatus(RequestStatus.CONFIRMED);

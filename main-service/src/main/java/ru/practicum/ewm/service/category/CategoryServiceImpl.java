@@ -7,7 +7,6 @@ import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.category.NewCategoryDto;
 import ru.practicum.ewm.errorHandler.exceptions.AlreadyExistsException;
 import ru.practicum.ewm.errorHandler.exceptions.NotFoundException;
-import ru.practicum.ewm.errorHandler.exceptions.ValidationException;
 import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.model.Category;
 import ru.practicum.ewm.repository.CategoryRepository;
@@ -38,14 +37,14 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteCategory(Long categoryId) {
         if (eventRepository.existsByCategoryId(categoryId)) {
-            throw new ValidationException("Category is not empty");
+            throw new AlreadyExistsException("Category is not empty");
         }
         categoryRepository.deleteById(categoryId);
     }
 
     // изменение категории
     @Override
-    public CategoryDto updateCategory(Long categoryId, CategoryDto categoryDto) {
+    public CategoryDto updateCategory(Long categoryId, NewCategoryDto categoryDto) {
         if (categoryDto.getName() == null || categoryDto.getName().isEmpty()) {
             throw new RuntimeException("Category name could not be empty");
         }

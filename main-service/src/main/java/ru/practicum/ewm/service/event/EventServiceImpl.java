@@ -9,6 +9,7 @@ import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.dto.stats.ViewStats;
 import ru.practicum.ewm.dto.stats.ViewStatsRequest;
 import ru.practicum.ewm.enums.*;
+import ru.practicum.ewm.errorHandler.exceptions.AlreadyExistsException;
 import ru.practicum.ewm.errorHandler.exceptions.NotFoundException;
 import ru.practicum.ewm.errorHandler.exceptions.ValidationException;
 import ru.practicum.ewm.mapper.EventMapper;
@@ -104,7 +105,7 @@ public class EventServiceImpl implements EventService {
                 eventToUpdate.setState(EventState.CANCELED);
             }
         } else {
-            throw new ValidationException("State of event should be CANCELED or PENDING" + eventToUpdate.getState());
+            throw new AlreadyExistsException("State of event should be CANCELED or PENDING" + eventToUpdate.getState());
         }
 
         updateEventEntity(updateEventUserRequest, eventToUpdate);
@@ -168,13 +169,13 @@ public class EventServiceImpl implements EventService {
                     eventToUpdate.setState(EventState.PUBLISHED);
                     eventToUpdate.setPublishedOn(LocalDateTime.now());
                 } else {
-                    throw new ValidationException("Event should be PENDING in order to be PUBLISHED" +
+                    throw new AlreadyExistsException("Event should be PENDING in order to be PUBLISHED" +
                             updateEventAdminRequest.getStateAction());
                 }
             }
             if (updateEventAdminRequest.getStateAction() == StateActionAdmin.REJECT_EVENT) {
                 if (eventToUpdate.getState().equals(EventState.PUBLISHED)) {
-                    throw new ValidationException("Event should be PENDING in order to reject it " +
+                    throw new AlreadyExistsException("Event should be PENDING in order to reject it " +
                             updateEventAdminRequest.getStateAction());
                 }
                 eventToUpdate.setState(EventState.CANCELED);
@@ -306,7 +307,11 @@ public class EventServiceImpl implements EventService {
                 uris,
                 true);
         List<ViewStats> viewStatsList = statsClient.getStats(viewStatsRequest);
-        eventFullDto.setViews(viewStatsList.get(0).getHits());
+        if (viewStatsList.isEmpty()) {
+            eventFullDto.setViews(0L);
+        } else {
+            eventFullDto.setViews(viewStatsList.get(0).getHits());
+        }
         return eventFullDto;
     }
 
@@ -326,7 +331,11 @@ public class EventServiceImpl implements EventService {
                 uris,
                 true);
         List<ViewStats> viewStatsList = statsClient.getStats(viewStatsRequest);
-        eventShortDto.setViews(viewStatsList.get(0).getHits());
+        if (viewStatsList.isEmpty()) {
+            eventShortDto.setViews(0L);
+        } else {
+            eventShortDto.setViews(viewStatsList.get(0).getHits());
+        }
         return eventShortDto;
     }
 }

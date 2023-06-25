@@ -5,7 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.model.Location;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -13,25 +14,26 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Valid
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NewEventDto {
-    @NotBlank
+    @NotNull
     @Size(min = 20, max = 2000)
     String annotation;
-    @NotBlank
+    @NotNull
     Long category;
-    @NotBlank
+    @NotNull
     @Size(min = 20, max = 7000)
     String description;
-    @NotBlank
+    @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
-    @NotBlank
+    @NotNull
     Location location;
-    Boolean paid;
-    Long participantLimit;
-    Boolean requestModeration;
-    @NotBlank
+    Boolean paid = false;
+    Long participantLimit = 0L;
+    Boolean requestModeration = true;
+    @NotNull
     @Size(min = 3, max = 120)
     String title;
 }
