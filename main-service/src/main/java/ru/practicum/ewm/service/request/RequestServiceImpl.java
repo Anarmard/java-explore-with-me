@@ -51,7 +51,12 @@ public class RequestServiceImpl implements RequestService {
             // return participationRequestDtoList;
         }
 
-        List<Request> requestList = requestRepository.findAllByRequesterIdAndEventId(userId, eventId);
+        List<Request> requestList;
+        if (userId.equals(eventRepository.findById(eventId).get().getInitiator().getId())) {
+            requestList = requestRepository.findAllByEvent_InitiatorIdAndEvent_Id(userId, eventId);
+        } else {
+            throw new ValidationException("User with such id is initiator of event with id" + userId + eventId);
+        }
 
         for (Request request : requestList) {
             participationRequestDtoList.add(requestMapper.toParticipationRequestDto(request));

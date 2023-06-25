@@ -24,5 +24,5 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
             "and e.initiator.id <> ?1")
     List<Request> findAllByRequesterIdAndNotInitiator(Long userId);
 
-    List<Request> findAllByRequesterIdAndEventId(Long userId, Long eventId);
+    List<Request> findAllByEvent_InitiatorIdAndEvent_Id(Long userId, Long eventId);
 }
