@@ -37,6 +37,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ParticipationRequestDto> getRequestsByCurrentUserOfCurrentEvent(Long userId, Long eventId) {
         List<ParticipationRequestDto> participationRequestDtoList = new ArrayList<>();
+
         if (!userRepository.existsById(userId) && !eventRepository.existsById(eventId)) {
             return participationRequestDtoList;
         }
@@ -50,7 +51,7 @@ public class RequestServiceImpl implements RequestService {
             // return participationRequestDtoList;
         }
 
-        List<Request> requestList = requestRepository.findAllRequestsForEventInitiator(userId, eventId);
+        List<Request> requestList = requestRepository.findAllByRequesterIdAndEventId(userId, eventId);
 
         for (Request request : requestList) {
             participationRequestDtoList.add(requestMapper.toParticipationRequestDto(request));
@@ -75,7 +76,7 @@ public class RequestServiceImpl implements RequestService {
         Long confirmedRequest = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 
         if (confirmedRequest >= event.getParticipantLimit()) {
-            throw new ValidationException("Participation limit exceed " + eventId);
+            throw new AlreadyExistsException("Participation limit exceed " + eventId);
         }
 
         // получаем список всех запросов статус которых нужно обновить
@@ -96,6 +97,9 @@ public class RequestServiceImpl implements RequestService {
         // перебираем все запросы
         for (Request currentRequest : requestList) {
             if (status == RequestStatusUpdate.CONFIRMED && currentRequest.getStatus().equals(RequestStatus.PENDING)) {
+                if (currentRequest.getStatus().equals(RequestStatus.CONFIRMED)) {
+                    throw new AlreadyExistsException("Request was already confirmed");
+                }
                 if (confirmedRequest >= event.getParticipantLimit()) {
                     // всем отказываем когда превышен лимит
                     currentRequest.setStatus(RequestStatus.REJECTED);
@@ -113,10 +117,6 @@ public class RequestServiceImpl implements RequestService {
                 updatedRequests.add(currentRequest);
                 rejectedRequests.add(currentRequest);
             }
-            if (status == RequestStatusUpdate.REJECTED && currentRequest.getStatus().equals(RequestStatus.CONFIRMED)) {
-                throw new AlreadyExistsException("Request was already confirmed");
-            }
-
         }
 
         // сохранили все запросы с новыми статусами в БД
@@ -130,8 +130,9 @@ public class RequestServiceImpl implements RequestService {
                 rejectedRequests.stream().map(requestMapper::toParticipationRequestDto).collect(Collectors.toList());
 
         EventRequestStatusUpdateResult updateResult = new EventRequestStatusUpdateResult();
-        updateResult.setRejectedRequests(confirmedRequestsDto);
-        updateResult.setConfirmedRequests(rejectedRequestsDto);
+        updateResult.setConfirmedRequests(confirmedRequestsDto);
+        updateResult.setRejectedRequests(rejectedRequestsDto);
+
 
         return updateResult;
     }

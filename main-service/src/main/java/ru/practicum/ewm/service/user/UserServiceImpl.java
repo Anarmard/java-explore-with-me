@@ -3,6 +3,7 @@ package ru.practicum.ewm.service.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.ewm.dto.user.NewUserRequest;
 import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.errorHandler.exceptions.AlreadyExistsException;
 import ru.practicum.ewm.errorHandler.exceptions.NotFoundException;
@@ -37,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
     // добавление нового пользователя
     @Override
-    public UserDto addUser(UserDto userDto) {
+    public UserDto addUser(NewUserRequest userDto) {
         if (userRepository.existsByName(userDto.getName())) {
             throw new AlreadyExistsException("User already exists with name: " + userDto.getName());
         }

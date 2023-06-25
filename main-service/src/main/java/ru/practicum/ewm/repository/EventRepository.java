@@ -44,7 +44,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
                                       Pageable pageable);
 
     @Query(value = "SELECT * FROM events e " +
-            "WHERE (:userId is null or e.initiator_id IN (cast(cast(:userIds as text) as bigint))) " +
+            "WHERE (:userIds is null or e.initiator_id IN (cast(cast(:userIds as text) as bigint))) " +
             "AND (:states is null or e.state IN (cast(:states as text))) " +
             "AND (:categories is null or e.category_id IN (cast(cast(:categories as text) as bigint))) " +
             "AND (cast(:rangeStart as timestamp) is null or e.event_date >= cast(:rangeStart as timestamp)) " +

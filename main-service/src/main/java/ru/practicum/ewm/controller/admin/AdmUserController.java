@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.dto.user.NewUserRequest;
 import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.service.user.UserService;
 
@@ -29,8 +30,8 @@ public class AdmUserController {
     // добавление нового пользователя
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto addUser(@Valid @RequestBody UserDto userDto) {
-        return userService.addUser(userDto);
+    public UserDto addUser(@Valid @RequestBody NewUserRequest newUserRequest) {
+        return userService.addUser(newUserRequest);
     }
 
     // удаление пользователя

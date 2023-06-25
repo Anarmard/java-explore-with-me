@@ -24,9 +24,5 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
             "and e.initiator.id <> ?1")
     List<Request> findAllByRequesterIdAndNotInitiator(Long userId);
 
-    @Query("select r from Request r " +
-            "join fetch r.event e " +
-            "where e.initiator.id = ?1 " +
-            "and e.id <> ?2")
-    List<Request> findAllRequestsForEventInitiator(Long userId, Long eventId);
+    List<Request> findAllByRequesterIdAndEventId(Long userId, Long eventId);
 }
