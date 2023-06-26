@@ -310,7 +310,7 @@ public class EventServiceImpl implements EventService {
         if (viewStatsList.isEmpty()) {
             eventFullDto.setViews(1L);
         } else {
-            eventFullDto.setViews(viewStatsList.get(0).getHits() + 1);
+            eventFullDto.setViews(viewStatsList.get(0).getHits());
         }
         return eventFullDto;
     }
