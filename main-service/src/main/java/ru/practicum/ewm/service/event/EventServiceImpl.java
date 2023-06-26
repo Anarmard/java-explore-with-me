@@ -308,9 +308,9 @@ public class EventServiceImpl implements EventService {
                 true);
         List<ViewStats> viewStatsList = statsClient.getStats(viewStatsRequest);
         if (viewStatsList.isEmpty()) {
-            eventFullDto.setViews(0L);
+            eventFullDto.setViews(1L);
         } else {
-            eventFullDto.setViews(viewStatsList.get(0).getHits());
+            eventFullDto.setViews(viewStatsList.get(0).getHits() + 1);
         }
         return eventFullDto;
     }
