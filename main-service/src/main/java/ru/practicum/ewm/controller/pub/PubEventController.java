@@ -1,6 +1,7 @@
 package ru.practicum.ewm.controller.pub;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/events")
 @RequiredArgsConstructor
+@Slf4j
 public class PubEventController {
     private final EventService eventService;
 
@@ -34,6 +36,9 @@ public class PubEventController {
                                             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
                                             @RequestParam(required = false, defaultValue = "10") @Positive Integer size,
                                             HttpServletRequest request) {
+        log.info("PubEventController / getEventList: получение событий с возможностью фильтрации " +
+                text + categories + paid + rangeStart + rangeEnd + onlyAvailable + sort + from + size +
+                request.getRemoteAddr() + request.getRequestURI());
         return eventService.getEventList(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from,
                 size, request.getRemoteAddr(), request.getRequestURI());
     }
@@ -42,6 +47,8 @@ public class PubEventController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public EventFullDto getEvent(@PathVariable Long id, HttpServletRequest request) {
+        log.info("PubEventController / getEvent: получение подробной инфо о событии по его id " +
+                id + request.getRemoteAddr() + request.getRequestURI());
         return eventService.getEvent(id, request.getRemoteAddr(), request.getRequestURI());
     }
 }

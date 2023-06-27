@@ -1,6 +1,7 @@
 package ru.practicum.ewm.controller.admin;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.event.EventFullDto;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/admin/events")
 @RequiredArgsConstructor
+@Slf4j
 public class AdmEventController {
     private final EventService eventService;
 
@@ -28,6 +30,8 @@ public class AdmEventController {
                                                   @RequestParam(required = false) String rangeEnd,
                                                   @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                                   @RequestParam(defaultValue = "10") @Positive Integer size) {
+        log.info("AdmEventController / getEventListByAdmin: Поиск событий " +
+                userIdList + states + categories + rangeStart + rangeEnd + from + size);
         return eventService.getEventsByAdmin(userIdList, states, categories, rangeStart, rangeEnd, from, size);
     }
 
@@ -35,6 +39,7 @@ public class AdmEventController {
     @PatchMapping("/{eventId}")
     public EventFullDto updateEvent(@PathVariable Long eventId,
                                     @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
+        log.info("AdmEventController / updateEvent: редактирование данных события и его статуса " + updateEventAdminRequest);
         return eventService.updateEventByAdmin(eventId, updateEventAdminRequest);
     }
 }
