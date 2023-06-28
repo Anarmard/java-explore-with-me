@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service.event;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
@@ -221,7 +223,7 @@ public class EventServiceImpl implements EventService {
                 .getContent();
 
         List<EventShortDto> eventShortDtoList = new ArrayList<>();
-        if (eventList == null) {
+        if (eventList.isEmpty()) {
             return eventShortDtoList;
         }
 
@@ -332,6 +334,8 @@ public class EventServiceImpl implements EventService {
                 true);
         List<ViewStats> viewStatsList = statsClient.getStats(viewStatsRequest);
         if (viewStatsList.isEmpty()) {
+            log.info("addShortConfirmedRequestsAndViews: просмотров нет у этого эндпоинта " +
+                    viewStatsRequest.getUris());
             eventShortDto.setViews(0L);
         } else {
             eventShortDto.setViews(viewStatsList.get(0).getHits());
