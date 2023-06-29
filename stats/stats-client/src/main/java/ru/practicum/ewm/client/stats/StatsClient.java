@@ -37,7 +37,7 @@ public class StatsClient {
     private final HttpClient httpClient;
 
     public StatsClient(@Value("ewm-main-service") String application,
-                       @Value("http://localhost:9090") String statsServiceUri,
+                       @Value("${stats-server.url}") String statsServiceUri,
                        ObjectMapper json) {
         this.application = application;
         this.statsServiceUri = statsServiceUri;
@@ -55,6 +55,8 @@ public class StatsClient {
                 .timestamp(LocalDateTime.now())
                 .build();
 
+        log.info("StatsClient / hit: {}", hit.toString());
+
         try {
             HttpRequest.BodyPublisher bodyPublisher = HttpRequest
                     .BodyPublishers
@@ -68,6 +70,8 @@ public class StatsClient {
                     .header(HttpHeaders.ACCEPT, "application/json")
                     .build();
 
+            log.info("StatsClient / hitRequest: {}", hitRequest.toString());
+
             // отправляем сформированный запрос
             HttpResponse<Void> response = httpClient.send(hitRequest, HttpResponse.BodyHandlers.discarding());
             log.debug("Response from stats-service: {}", response);
@@ -79,12 +83,15 @@ public class StatsClient {
     public List<ViewStats> getStats(ViewStatsRequest request) {
         try {
             String queryString = toQueryString(request);
+            log.info("StatsClient / queryString: {}", queryString);
 
             // полученную строку вставляем в запрос
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(URI.create(statsServiceUri + "/stats" + queryString))
                     .header(HttpHeaders.ACCEPT, "application/json")
                     .build();
+
+            log.info("StatsClient / httpRequest: {}", httpRequest.toString());
 
             // отправляем сформированный запрос
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
