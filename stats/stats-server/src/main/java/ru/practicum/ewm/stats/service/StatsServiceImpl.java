@@ -37,10 +37,10 @@ public class StatsServiceImpl implements StatsService {
             builder.end(LocalDateTime.parse(end, DTF));
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd h:m:s");
             if (sdf.parse(end).before(sdf.parse(start))) {
-                throw new IllegalArgumentException("Дата начала не может быть раньше даты конца");
+                throw new RuntimeException("Дата начала не может быть раньше даты конца");
             }
         } catch (DateTimeException | ParseException e) {
-            throw new IllegalArgumentException("Некорректный диапазон дат: " + e.getLocalizedMessage(), e);
+            throw new RuntimeException("Некорректный диапазон дат: " + e.getLocalizedMessage(), e);
         }
 
         return hitRepository.getIntervalStats(builder.build());
