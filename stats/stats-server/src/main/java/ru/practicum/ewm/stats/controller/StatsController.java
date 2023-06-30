@@ -26,6 +26,9 @@ public class StatsController {
     @PostMapping("/hit")
     @ResponseStatus(code = HttpStatus.CREATED)
     public void hit(@RequestBody EndpointHit endpointHit) {
+        log.info("StatsController / hit: " +
+                "Сохранение информации о том, что на uri конкретного сервиса был отправлен запрос пользователем " +
+                endpointHit);
         statsService.recordHit(endpointHit);
     }
 
@@ -35,6 +38,8 @@ public class StatsController {
                                                     @RequestParam @NonNull String end,
                                                     @RequestParam(required = false) List<String> uris,
                                                     @RequestParam(defaultValue = "false") boolean unique) {
+        log.info("StatsController / getStats: Получение статистики по посещениям " +
+                start + end + uris + unique);
         List<ViewStats> results = statsService.calculateViews(start, end, uris, unique);
         return ResponseEntity.ok(results);
     }
