@@ -22,14 +22,14 @@ public class PubCompilationController {
     public List<CompilationDto> getCompilationList(@RequestParam(required = false) Boolean pinned,
                                                    @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
                                                    @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
-        log.info("PubCompilationController / getCompilationList: получение подборок событий " + pinned + from + size);
+        log.info("PubCompilationController / getCompilationList: получение подборок событий, закрепленных {} ", pinned);
         return compilationService.getCompilationList(pinned, from, size);
     }
 
     // получение подборки событие по его id
     @GetMapping("/{compId}")
     public CompilationDto getCompilation(@PathVariable Long compId) {
-        log.info("PubCompilationController / getCompilation: получение подборки событие по его id " + compId);
+        log.info("PubCompilationController / getCompilation: получение подборки событие по его id {}", compId);
         return compilationService.getCompilation(compId);
     }
 }

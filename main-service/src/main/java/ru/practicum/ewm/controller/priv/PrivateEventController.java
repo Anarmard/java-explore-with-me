@@ -33,8 +33,7 @@ public class PrivateEventController {
     public List<EventShortDto> getEventsByInitiator(@PathVariable Long userId,
                                                     @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
                                                     @RequestParam(name = "size", defaultValue = "10") @Positive Integer size) {
-        log.info("PrivateEventController / getEventsByInitiator: получение событий текущего пользователя "
-                + userId + from + size);
+        log.info("PrivateEventController / getEventsByInitiator: получение событий текущего пользователя {}", userId);
         return eventService.getEventsByInitiator(userId, PageRequest.of(from, size));
     }
 
@@ -43,7 +42,8 @@ public class PrivateEventController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto addEvent(@PathVariable Long userId,
                                  @Valid @RequestBody NewEventDto newEventDto) {
-        log.info("PrivateEventController / addEvent: добавление нового события " + userId + newEventDto);
+        log.info("PrivateEventController / addEvent: добавление пользователем {} нового события {}",
+                userId, newEventDto.toString());
         return eventService.addEvent(userId, newEventDto);
     }
 
@@ -51,8 +51,8 @@ public class PrivateEventController {
     @GetMapping("/{eventId}")
     public EventFullDto getEventByInitiator(@PathVariable Long userId,
                                             @PathVariable Long eventId) {
-        log.info("PrivateEventController / getEventByInitiator: полная инфо о событии добавленное текущим пользователем " +
-                userId + eventId);
+        log.info("PrivateEventController / getEventByInitiator: полная инфо о событии {} добавленное текущим пользователем {}",
+                eventId, userId);
         return eventService.getEventByInitiator(userId, eventId);
     }
 
@@ -61,8 +61,8 @@ public class PrivateEventController {
     public EventFullDto updateEventByInitiator(@PathVariable Long userId,
                                                @PathVariable Long eventId,
                                                @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
-        log.info("PrivateEventController / updateEventByInitiator: изменения события добавленного текущим пользователем " +
-                userId + eventId + updateEventUserRequest);
+        log.info("PrivateEventController / updateEventByInitiator: изменения события {} добавленного текущим пользователем {}",
+                eventId, userId);
         return eventService.updateEventByInitiator(userId, eventId, updateEventUserRequest);
     }
 
@@ -71,8 +71,7 @@ public class PrivateEventController {
     public List<ParticipationRequestDto> getRequestsByCurrentUserOfCurrentEvent(@PathVariable Long userId,
                                                                                 @PathVariable Long eventId) {
         log.info("PrivateEventController / getRequestsByCurrentUserOfCurrentEvent: " +
-                "Получение инфо о запросах на участие в событии текущего пользователя " +
-                userId + eventId);
+                "Получение инфо о запросах на участие в событии {} текущего пользователя {}", eventId, userId);
         return requestService.getRequestsByCurrentUserOfCurrentEvent(userId, eventId);
     }
 
@@ -82,8 +81,8 @@ public class PrivateEventController {
                                                         @PathVariable Long eventId,
                                                         @Valid @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
         log.info("PrivateEventController / updateRequest: " +
-                "Изменение статуса (подтверждена, отменена) заявок на участие в событии текущего пользователя " +
-                userId + eventId + eventRequestStatusUpdateRequest);
+                        "Изменение статуса (подтверждена, отменена) заявок на участие в событии {} текущего пользователя {}",
+                eventId, userId);
         return requestService.updateRequest(userId, eventId, eventRequestStatusUpdateRequest);
     }
 }

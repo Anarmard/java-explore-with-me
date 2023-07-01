@@ -39,7 +39,8 @@ public class AdmEventController {
     @PatchMapping("/{eventId}")
     public EventFullDto updateEvent(@PathVariable Long eventId,
                                     @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
-        log.info("AdmEventController / updateEvent: редактирование данных события и его статуса " + updateEventAdminRequest);
+        log.info("AdmEventController / updateEvent: редактирование данных события {} и его статуса ",
+                updateEventAdminRequest.toString());
         return eventService.updateEventByAdmin(eventId, updateEventAdminRequest);
     }
 }

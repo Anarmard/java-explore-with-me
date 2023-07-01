@@ -39,7 +39,7 @@ public class StatsServiceImpl implements StatsService {
             builder.start(LocalDateTime.parse(start, DTF));
             builder.end(LocalDateTime.parse(end, DTF));
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd h:m:s");
-            log.info("StatsService / calculateViews / start / end: " + sdf.parse(end) + sdf.parse(start));
+            log.info("StatsService / calculateViews / start {}  end {} ", start, end);
             if (sdf.parse(end).before(sdf.parse(start))) {
                 throw new ValidationException("Дата начала не может быть раньше даты конца");
             }

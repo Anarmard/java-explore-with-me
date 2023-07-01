@@ -22,7 +22,7 @@ public class AdmCompilationController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto addCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
-        log.info("AdmCompilationController / addCompilation: добавление новой подборки " + newCompilationDto);
+        log.info("AdmCompilationController / addCompilation: добавление новой подборки {}", newCompilationDto.toString());
         return compilationService.addCompilation(newCompilationDto);
     }
 
@@ -30,7 +30,7 @@ public class AdmCompilationController {
     @DeleteMapping("/{compId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCompilation(@PathVariable Long compId) {
-        log.info("AdmCompilationController / deleteCompilation: удаление подборки " + compId);
+        log.info("AdmCompilationController / deleteCompilation: удаление подборки {}", compId);
         compilationService.deleteCompilation(compId);
     }
 
@@ -38,7 +38,7 @@ public class AdmCompilationController {
     @PatchMapping("/{compId}")
     public CompilationDto updateCompilation(@PathVariable Long compId,
                                             @Valid @RequestBody UpdateCompilationRequest updateCompilationRequest) {
-        log.info("AdmCompilationController / updateCompilation: обновить информацию о подборке " + compId + updateCompilationRequest);
+        log.info("AdmCompilationController / updateCompilation: обновить информацию о подборке {}", compId);
         return compilationService.updateCompilation(compId, updateCompilationRequest);
     }
 }
