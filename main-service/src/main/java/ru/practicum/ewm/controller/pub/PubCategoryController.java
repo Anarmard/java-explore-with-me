@@ -24,7 +24,7 @@ public class PubCategoryController {
     @ResponseStatus(HttpStatus.OK)
     public List<CategoryDto> getCategoryList(@RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
                                              @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
-        log.info("PubCategoryController / getCategoryList: получение категорий ");
+        log.info("PubCategoryController / getCategoryList: получение категорий");
         return categoryService.getCategoryList(PageRequest.of(from, size));
     }
 

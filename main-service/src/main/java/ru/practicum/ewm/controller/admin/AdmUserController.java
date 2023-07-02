@@ -26,7 +26,7 @@ public class AdmUserController {
     public List<UserDto> getUserList(@RequestParam(required = false, name = "ids") List<Long> idList,
                                      @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                      @RequestParam(defaultValue = "10") @Positive Integer size) {
-        log.info("AdmUserController / getUserList: получение инфо о пользователях {}", idList.toString());
+        log.info("AdmUserController / getUserList: получение инфо о пользователях {}", idList);
         return userService.getUserList(idList, PageRequest.of(from, size));
     }
 
@@ -34,7 +34,7 @@ public class AdmUserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserDto addUser(@Valid @RequestBody NewUserRequest newUserRequest) {
-        log.info("AdmUserController / addUser: добавление нового пользователя {}", newUserRequest.toString());
+        log.info("AdmUserController / addUser: добавление нового пользователя {}", newUserRequest);
         return userService.addUser(newUserRequest);
     }
 
