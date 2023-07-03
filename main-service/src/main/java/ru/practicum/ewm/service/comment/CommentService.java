@@ -15,7 +15,14 @@ public interface CommentService {
     // удаление комментария к событию
     void deleteComment(Long userId, Long commentId);
 
+    // изменение комментария
+    CommentDto updateComment(Long userId, Long commentId, NewCommentDto newCommentDto);
+
     // public:
     // получение всех комментариев к событию
     List<CommentDto> getAllCommentsToEvent(Long eventId, Pageable pageable);
+
+    // admin:
+    // удаление комментария админом
+    void deleteCommentByAdmin(Long commentId);
 }

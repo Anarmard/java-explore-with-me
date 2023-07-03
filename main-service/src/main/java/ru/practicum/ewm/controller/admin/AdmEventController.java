@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.dto.event.UpdateEventAdminRequest;
+import ru.practicum.ewm.service.comment.CommentService;
 import ru.practicum.ewm.service.event.EventService;
 
 import javax.validation.Valid;
@@ -19,6 +20,7 @@ import java.util.List;
 @Slf4j
 public class AdmEventController {
     private final EventService eventService;
+    private final CommentService commentService;
 
     // Поиск событий
     @GetMapping
@@ -40,7 +42,15 @@ public class AdmEventController {
     public EventFullDto updateEvent(@PathVariable Long eventId,
                                     @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
         log.info("AdmEventController / updateEvent: редактирование данных события {} и его статуса ",
-                updateEventAdminRequest.toString());
+                updateEventAdminRequest);
         return eventService.updateEventByAdmin(eventId, updateEventAdminRequest);
+    }
+
+    // удаление комментария админом
+    @DeleteMapping("/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCommentByAdmin(@PathVariable Long commentId) {
+        log.info("AdmEventController / deleteCommentByAdmin: удаление админом комментария {} ", commentId);
+        commentService.deleteCommentByAdmin(commentId);
     }
 }

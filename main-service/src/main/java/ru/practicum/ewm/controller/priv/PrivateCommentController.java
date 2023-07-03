@@ -38,5 +38,12 @@ public class PrivateCommentController {
         commentService.deleteComment(userId, commentId);
     }
 
-
+    // изменение комментария
+    @PatchMapping("/{commentId}")
+    public CommentDto updateComment(@PathVariable Long userId,
+                                    @PathVariable Long commentId,
+                                    @Valid @RequestBody NewCommentDto newCommentDto) {
+        log.info("PrivateCommentController / updateComment: изменение комментария {}", commentId);
+        return commentService.updateComment(userId, commentId, newCommentDto);
+    }
 }

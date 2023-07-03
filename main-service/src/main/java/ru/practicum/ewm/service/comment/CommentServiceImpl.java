@@ -29,17 +29,12 @@ public class CommentServiceImpl implements CommentService {
     // добавление комментария к событию
     @Override
     public CommentDto addComment(Long userId, Long eventId, NewCommentDto newCommentDto) {
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("User does not exist " + userId);
-        }
-        if (!eventRepository.existsById(eventId)) {
-            throw new NotFoundException("Event does not exist " + eventId);
-        }
-
         Comment commentToSave = commentMapper.toComment(newCommentDto);
         commentToSave.setCreated(LocalDateTime.now());
-        commentToSave.setCommentator(userRepository.findById(userId).get());
-        commentToSave.setEvent(eventRepository.findById(eventId).get());
+        commentToSave.setCommentator(userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("User does not exist " + userId)));
+        commentToSave.setEvent(eventRepository.findById(eventId).orElseThrow(() ->
+                new NotFoundException("Event does not exist " + eventId)));
 
         commentRepository.save(commentToSave);
 
@@ -49,14 +44,29 @@ public class CommentServiceImpl implements CommentService {
     // удаление комментария к событию
     @Override
     public void deleteComment(Long userId, Long commentId) {
-        if (!commentRepository.existsById(commentId)) {
-            throw new NotFoundException("Comment does not exist " + commentId);
-        }
-        if (userId.equals(commentRepository.findById(commentId).get().getCommentator().getId())) {
+        if (userId.equals(commentRepository.findById(commentId).orElseThrow(() ->
+                new NotFoundException("Comment does not exist " + commentId)).getCommentator().getId())) {
             commentRepository.deleteById(commentId);
         } else {
             throw new ValidationException("User with id is not commentator" + userId);
         }
+    }
+
+    // изменение комментария
+    public CommentDto updateComment(Long userId, Long commentId, NewCommentDto newCommentDto) {
+        Comment commentToUpdate = commentRepository.findById(commentId).orElseThrow(() ->
+                new NotFoundException("Comment does not exist " + commentId));
+
+        if (!userId.equals(commentToUpdate.getCommentator().getId())) {
+            throw new ValidationException("User with id is not commentator" + userId);
+        }
+
+        if (!newCommentDto.getCommentText().isEmpty() && newCommentDto.getCommentText() != null) {
+            commentToUpdate.setCommentText(newCommentDto.getCommentText());
+            commentRepository.save(commentToUpdate);
+        }
+
+        return commentMapper.toCommentDto(commentToUpdate);
     }
 
     // public:
@@ -77,4 +87,14 @@ public class CommentServiceImpl implements CommentService {
         return commentDtoList;
     }
 
+    // admin:
+    // удаление комментария админом
+    @Override
+    public void deleteCommentByAdmin(Long commentId) {
+        if (commentRepository.existsById(commentId)) {
+            commentRepository.deleteById(commentId);
+        } else {
+            throw new NotFoundException("Comment does not exist " + commentId);
+        }
+    }
 }

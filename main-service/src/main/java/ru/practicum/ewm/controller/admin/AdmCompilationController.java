@@ -22,7 +22,7 @@ public class AdmCompilationController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto addCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
-        log.info("AdmCompilationController / addCompilation: добавление новой подборки {}", newCompilationDto.toString());
+        log.info("AdmCompilationController / addCompilation: добавление новой подборки {}", newCompilationDto);
         return compilationService.addCompilation(newCompilationDto);
     }
 

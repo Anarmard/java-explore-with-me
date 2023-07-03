@@ -43,7 +43,7 @@ public class PrivateEventController {
     public EventFullDto addEvent(@PathVariable Long userId,
                                  @Valid @RequestBody NewEventDto newEventDto) {
         log.info("PrivateEventController / addEvent: добавление пользователем {} нового события {}",
-                userId, newEventDto.toString());
+                userId, newEventDto);
         return eventService.addEvent(userId, newEventDto);
     }
 
