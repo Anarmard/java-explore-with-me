@@ -27,8 +27,8 @@ public class StatsController {
     @ResponseStatus(code = HttpStatus.CREATED)
     public void hit(@RequestBody EndpointHit endpointHit) {
         log.info("StatsController / hit: " +
-                "Сохранение информации о том, что на uri конкретного сервиса был отправлен запрос пользователем " +
-                endpointHit);
+                        "Сохранение информации о том, что на uri конкретного сервиса был отправлен запрос пользователем {}",
+                endpointHit.toString());
         statsService.recordHit(endpointHit);
     }
 

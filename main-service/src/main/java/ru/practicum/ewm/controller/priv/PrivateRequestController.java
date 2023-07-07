@@ -20,8 +20,7 @@ public class PrivateRequestController {
     @GetMapping
     public List<ParticipationRequestDto> getRequestsByCurrentUser(@PathVariable Long userId) {
         log.info("PrivateRequestController / getRequestsByCurrentUser: " +
-                "Получение инфо о заявках текущего пользователя на участие в чужих событиях " +
-                userId);
+                "Получение инфо о заявках текущего пользователя {} на участие в чужих событиях ", userId);
         return requestService.getRequestsByCurrentUser(userId);
     }
 
@@ -31,8 +30,7 @@ public class PrivateRequestController {
     public ParticipationRequestDto addRequest(@PathVariable Long userId,
                                               @RequestParam Long eventId) {
         log.info("PrivateRequestController / addRequest: " +
-                "Добавление запроса от текущего пользователя на участие в событии " +
-                userId + eventId);
+                "Добавление запроса от текущего пользователя {} на участие в событии {}", userId, eventId);
         return requestService.addRequest(userId, eventId);
     }
 
@@ -40,8 +38,8 @@ public class PrivateRequestController {
     @PatchMapping("/{requestId}/cancel")
     public ParticipationRequestDto cancelRequest(@PathVariable Long userId,
                                                  @PathVariable Long requestId) {
-        log.info("PrivateRequestController / cancelRequest: отмена своего запроса на участие в событии " +
-                userId + requestId);
+        log.info("PrivateRequestController / cancelRequest: отмена пользователем {} своего запроса {} на участие в событии",
+                userId, requestId);
         return requestService.cancelRequest(userId, requestId);
     }
 }

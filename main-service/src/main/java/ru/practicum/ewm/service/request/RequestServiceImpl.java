@@ -45,12 +45,10 @@ public class RequestServiceImpl implements RequestService {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User does not exist " + userId);
         }
-        if (!eventRepository.existsById(eventId)) {
-            throw new NotFoundException("Event does not exist " + eventId);
-        }
 
         List<Request> requestList;
-        if (userId.equals(eventRepository.findById(eventId).get().getInitiator().getId())) {
+        if (userId.equals(eventRepository.findById(eventId).orElseThrow(() ->
+                new NotFoundException("Event does not exist " + eventId)).getInitiator().getId())) {
             requestList = requestRepository.findAllByEvent_InitiatorIdAndEvent_Id(userId, eventId);
         } else {
             throw new ValidationException("User with such id is initiator of event with id" + userId + eventId);
